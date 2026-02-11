@@ -23,10 +23,9 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-# Auto-create tables on startup (for Render)
-with app.app_context():
+@app.before_first_request
+def create_tables():
     db.create_all()
-
 
 
 # Database Table
@@ -273,8 +272,8 @@ def rate(id):
 # Start Server
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-
     app.run(host="0.0.0.0", port=port)
+
 
 
 
