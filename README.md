@@ -6,9 +6,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?style=for-the-badge&logo=render)
 
-## 🌐 Live Demo
-
-**[🚀 Visit Live Application](https://freeapidev.onrender.com/)**
+## 🌐 Live Demo - **[🚀 Visit Live Application](https://freeapidev.onrender.com/)**
 
 ## 📋 Overview
 
