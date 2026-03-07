@@ -1,8 +1,47 @@
-from flask import Flask, render_template, request
-import requests
+# ─────────────────────────────────────────────────────────────────
+#  app.py  —  DevAPI Hub  (complete, all routes working)
+# ─────────────────────────────────────────────────────────────────
+from flask import (Flask, render_template, request,
+                   redirect, url_for, session, flash)
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+import requests, os
 
 app = Flask(__name__)
 
+# ── Config ────────────────────────────────────────────────────────
+app.secret_key = os.environ.get("SECRET_KEY", "devapiHub_secret_2025")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL", "sqlite:///devapiHub.db"
+)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+
+# ── DB Models ─────────────────────────────────────────────────────
+class User(db.Model):
+    id       = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80),  unique=True,  nullable=False)
+    email    = db.Column(db.String(120), unique=True,  nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    role     = db.Column(db.String(20),  default="user")
+    apis     = db.relationship("API", backref="author", lazy=True)
+
+
+class API(db.Model):
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String(100), nullable=False)
+    tech        = db.Column(db.String(50),  nullable=False)
+    description = db.Column(db.String(300), nullable=False)
+    url         = db.Column(db.String(300), nullable=False)
+    code        = db.Column(db.Text,        nullable=False)
+    endpoint    = db.Column(db.String(300), nullable=False)
+    method      = db.Column(db.String(10),  default="GET")
+    user_id     = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+
+
+# ── 100 Embedded Public APIs (fallback when live source is down) ──
 EMBEDDED_APIS = [
     {"API":"Cat Facts","Description":"Random cat facts and trivia for any app","Auth":"","HTTPS":True,"Cors":"yes","Link":"https://catfact.ninja/","Category":"Animals"},
     {"API":"Dog CEO","Description":"Random dog breed images from 115+ breeds","Auth":"","HTTPS":True,"Cors":"yes","Link":"https://dog.ceo/dog-api/","Category":"Animals"},
@@ -108,6 +147,8 @@ EMBEDDED_APIS = [
 
 API_SOURCE = "https://api.publicapis.org/entries"
 
+
+# ── Helper: fetch live or fallback ────────────────────────────────
 def get_all_apis():
     try:
         response = requests.get(API_SOURCE, timeout=5)
@@ -119,16 +160,225 @@ def get_all_apis():
         pass
     return EMBEDDED_APIS
 
+
+# ── Helper: code templates per language ───────────────────────────
+CODE_TEMPLATES = {
+    "Python": (
+        'import requests\n\n'
+        'url = "{endpoint}"\n\n'
+        'response = requests.get(url)\n'
+        'data = response.json()\n\n'
+        'print(data)\n'
+    ),
+    "JavaScript": (
+        'fetch("{endpoint}")\n'
+        '  .then(response => response.json())\n'
+        '  .then(data => {{\n'
+        '    console.log(data);\n'
+        '  }})\n'
+        '  .catch(error => console.error("Error:", error));\n'
+    ),
+    "Node.js": (
+        'const axios = require("axios");\n\n'
+        'const url = "{endpoint}";\n\n'
+        'axios.get(url)\n'
+        '  .then(response => {{\n'
+        '    console.log(response.data);\n'
+        '  }})\n'
+        '  .catch(error => {{\n'
+        '    console.error("Error:", error.message);\n'
+        '  }});\n'
+    ),
+    "Java": (
+        'import java.net.http.HttpClient;\n'
+        'import java.net.http.HttpRequest;\n'
+        'import java.net.http.HttpResponse;\n'
+        'import java.net.URI;\n\n'
+        'HttpClient client = HttpClient.newHttpClient();\n\n'
+        'HttpRequest request = HttpRequest.newBuilder()\n'
+        '    .uri(URI.create("{endpoint}"))\n'
+        '    .GET()\n'
+        '    .build();\n\n'
+        'HttpResponse<String> response = client.send(\n'
+        '    request, HttpResponse.BodyHandlers.ofString()\n'
+        ');\n\n'
+        'System.out.println(response.body());\n'
+    ),
+}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  ROUTES
+# ═══════════════════════════════════════════════════════════════════
+
+# ── / — Home page ─────────────────────────────────────────────────
 @app.route("/")
 def home():
-    apis = get_all_apis()
-    categories = sorted(set(a.get("Category", "") for a in apis if a.get("Category")))
+    apis         = get_all_apis()
+    categories   = sorted(set(a.get("Category", "") for a in apis if a.get("Category")))
     selected_cat = request.args.get("cat", "")
     if selected_cat:
         apis = [a for a in apis if a.get("Category") == selected_cat]
     total = len(get_all_apis())
     return render_template("index.html", apis=apis, categories=categories,
                            selected_cat=selected_cat, total=total)
+
+
+# ── /signup — Create account ──────────────────────────────────────
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if "user_id" in session:
+        return redirect(url_for("home"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        email    = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if not username or not email or not password:
+            flash("All fields are required.", "error")
+            return render_template("signup.html")
+
+        if len(password) < 6:
+            flash("Password must be at least 6 characters.", "error")
+            return render_template("signup.html")
+
+        if User.query.filter_by(email=email).first():
+            flash("An account with that email already exists.", "error")
+            return render_template("signup.html")
+
+        if User.query.filter_by(username=username).first():
+            flash("That username is already taken.", "error")
+            return render_template("signup.html")
+
+        user = User(username=username, email=email,
+                    password=generate_password_hash(password))
+        db.session.add(user)
+        db.session.commit()
+
+        session["user_id"]  = user.id
+        session["username"] = user.username
+        flash("Account created! Welcome to DevAPI Hub.", "success")
+        return redirect(url_for("home"))
+
+    return render_template("signup.html")
+
+
+# ── /login — Sign in ──────────────────────────────────────────────
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if "user_id" in session:
+        return redirect(url_for("home"))
+
+    if request.method == "POST":
+        email    = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        user     = User.query.filter_by(email=email).first()
+
+        if not user or not check_password_hash(user.password, password):
+            flash("Incorrect email or password.", "error")
+            return render_template("login.html")
+
+        session["user_id"]  = user.id
+        session["username"] = user.username
+        flash(f"Welcome back, {user.username}!", "success")
+        return redirect(url_for("home"))
+
+    return render_template("login.html")
+
+
+# ── /logout — Sign out ────────────────────────────────────────────
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("You have been logged out.", "info")
+    return redirect(url_for("home"))
+
+
+# ── /profile — User dashboard ─────────────────────────────────────
+@app.route("/profile")
+def profile():
+    if "user_id" not in session:
+        flash("Please log in to view your profile.", "error")
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+    if not user:
+        session.clear()
+        return redirect(url_for("login"))
+
+    return render_template("profile.html", user=user, apis=user.apis)
+
+
+# ── /admin — Add new API ──────────────────────────────────────────
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    if "user_id" not in session:
+        flash("Please log in to add an API.", "error")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        name        = request.form.get("name", "").strip()
+        tech        = request.form.get("tech", "").strip()
+        url         = request.form.get("url", "").strip()
+        description = request.form.get("desc", "").strip()
+        code        = request.form.get("code", "").strip()
+        endpoint    = request.form.get("endpoint", "").strip()
+
+        if not all([name, tech, url, description, endpoint]):
+            flash("Name, category, URL, description and endpoint are all required.", "error")
+            return render_template("admin.html")
+
+        if not code:
+            code = f'import requests\nres = requests.get("{endpoint}")\nprint(res.json())'
+
+        new_api = API(name=name, tech=tech, url=url, description=description,
+                      code=code, endpoint=endpoint, method="GET",
+                      user_id=session["user_id"])
+        db.session.add(new_api)
+        db.session.commit()
+        flash(f'✅ API "{name}" added to the directory!', "success")
+        return redirect(url_for("home"))
+
+    return render_template("admin.html")
+
+
+# ── /delete/<id> — Remove an API ──────────────────────────────────
+@app.route("/delete/<int:api_id>")
+def delete_api(api_id):
+    if "user_id" not in session:
+        flash("Please log in first.", "error")
+        return redirect(url_for("login"))
+
+    api = API.query.get_or_404(api_id)
+
+    if api.user_id != session["user_id"]:
+        flash("You can only delete your own APIs.", "error")
+        return redirect(url_for("profile"))
+
+    db.session.delete(api)
+    db.session.commit()
+    flash("API removed.", "info")
+    return redirect(url_for("profile"))
+
+
+# ── /generate/<id> — Code generator ──────────────────────────────
+@app.route("/generate/<int:api_id>", methods=["GET", "POST"])
+def generate(api_id):
+    api = API.query.get_or_404(api_id)
+
+    if request.method == "POST":
+        language = request.form.get("language", "Python")
+        template = CODE_TEMPLATES.get(language, CODE_TEMPLATES["Python"])
+        code     = template.format(endpoint=api.endpoint)
+        return render_template("result.html", code=code, language=language, api=api)
+
+    return render_template("generate.html", api=api)
+
+
+# ── Init DB tables and start server ──────────────────────────────
+with app.app_context():
+    db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True)
