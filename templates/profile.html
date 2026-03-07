@@ -1,44 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — DevAPI Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060B17;--surface:#0D1626;--surface2:#121E33;--border:rgba(255,255,255,0.08);--accent:#00E5FF;--green:#22D3A5;--text:#E2EAF4;--muted:#6B7E99}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.navbar{position:sticky;top:0;z-index:100;background:rgba(6,11,23,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),#0080FF);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;color:var(--text)}
+.nav-title span{color:var(--accent)}
+.nav-actions{display:flex;gap:10px}
+.btn-nav{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);text-decoration:none;font-size:.82rem;padding:7px 14px;border-radius:8px;transition:all .15s}
+.btn-nav:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
+.btn-nav-accent{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.2);color:var(--accent)}
+.btn-nav-accent:hover{background:rgba(0,229,255,.16);color:var(--accent)}
+.page{flex:1;padding:48px 2rem;position:relative;z-index:1;max-width:720px;margin:0 auto;width:100%}
+.glow{position:absolute;top:5%;left:50%;transform:translateX(-50%);width:600px;height:250px;background:radial-gradient(ellipse,rgba(0,229,255,.06) 0%,transparent 70%);pointer-events:none}
+.profile-header{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:24px;position:relative;overflow:hidden}
+.profile-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#0080FF)}
+.avatar{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,var(--accent),#0080FF);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.profile-info{}
+.profile-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;letter-spacing:-.4px;margin-bottom:4px}
+.profile-email{color:var(--muted);font-size:.875rem;margin-bottom:10px}
+.profile-role{display:inline-flex;align-items:center;gap:6px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.18);color:var(--accent);font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:15px;text-transform:uppercase;letter-spacing:.06em}
 
-<title>My Profile</title>
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;color:var(--accent);display:block;margin-bottom:4px}
+.stat-lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+.section{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.section-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem}
+.section-count{font-size:.78rem;color:var(--muted);background:var(--surface2);padding:3px 10px;border-radius:6px}
+.api-list{padding:8px 0}
+.api-list-item{padding:12px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);transition:background .15s}
+.api-list-item:last-child{border-bottom:none}
+.api-list-item:hover{background:rgba(255,255,255,.02)}
+.api-item-name{font-weight:500;font-size:.875rem}
+.api-item-cat{font-size:.72rem;color:var(--muted);margin-top:2px}
+.empty-list{padding:40px 22px;text-align:center;color:var(--muted);font-size:.875rem}
 
+.action-row{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:7px;background:var(--accent);border:none;border-radius:10px;padding:11px 22px;color:#060B17;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;text-decoration:none;cursor:pointer;transition:all .2s}
+.btn-primary:hover{background:#33EAFF;box-shadow:0 6px 20px rgba(0,229,255,.3);transform:translateY(-1px)}
+.btn-secondary{display:inline-flex;align-items:center;gap:7px;background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.2);border-radius:10px;padding:11px 22px;color:#FF8560;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;text-decoration:none;transition:all .15s}
+.btn-secondary:hover{background:rgba(255,107,53,.16);color:#FF8560}
+
+.footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 2rem;text-align:center;color:var(--muted);font-size:.78rem}
+.footer strong{color:var(--text)}
+</style>
 </head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <div class="nav-logo">⚡</div>
+    <span class="nav-title">Dev<span>API</span></span>
+  </a>
+  <div class="nav-actions">
+    <a href="/" class="btn-nav">← Back Home</a>
+    <a href="/logout" class="btn-nav btn-nav-accent">Sign Out</a>
+  </div>
+</nav>
 
-<body class="bg-light">
+<main class="page">
+  <div class="glow"></div>
 
-<div class="container mt-5">
+  <div class="profile-header">
+    <div class="avatar">👤</div>
+    <div class="profile-info">
+      <div class="profile-name">{{ user.username }}</div>
+      <div class="profile-email">{{ user.email }}</div>
+      <span class="profile-role">⚡ Developer</span>
+    </div>
+  </div>
 
-<div class="card p-4 mx-auto" style="max-width:600px">
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-num">{{ apis|length }}</span>
+      <span class="stat-lbl">APIs Tracked</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">100+</span>
+      <span class="stat-lbl">In Directory</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">Free</span>
+      <span class="stat-lbl">Tier</span>
+    </div>
+  </div>
 
-<h3>👤 {{ user.username }}</h3>
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">API Submissions</div>
+      <div class="section-count">{{ apis|length }} total</div>
+    </div>
+    <div class="api-list">
+      {% if apis %}
+        {% for api in apis %}
+        <div class="api-list-item">
+          <div>
+            <div class="api-item-name">{{ api.name }}</div>
+            <div class="api-item-cat">{{ api.tech }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-list">No API submissions yet. <a href="/admin" style="color:var(--accent)">Add the first one →</a></div>
+      {% endif %}
+    </div>
+  </div>
 
-<p>📧 {{ user.email }}</p>
+  <div class="action-row">
+    <a href="/admin" class="btn-primary">+ Submit New API</a>
+    <a href="/logout" class="btn-secondary">Sign Out</a>
+  </div>
+</main>
 
-<hr>
-
-<h5>My APIs</h5>
-
-<ul>
-
-{% for api in apis %}
-
-<li>{{ api.name }}</li>
-
-{% endfor %}
-
-</ul>
-
-<a href="/" class="btn btn-primary mt-3">
-Back Home
-</a>
-
-</div>
-
-</div>
-
+<footer class="footer">© 2025 <strong>DevAPI Hub</strong> · Built for developers</footer>
 </body>
 </html>
