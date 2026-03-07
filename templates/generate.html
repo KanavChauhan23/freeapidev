@@ -1,75 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Generate Code</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generate Code — DevAPI Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060B17;--surface:#0D1626;--surface2:#121E33;--border:rgba(255,255,255,0.08);--accent:#00E5FF;--green:#22D3A5;--text:#E2EAF4;--muted:#6B7E99}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.navbar{position:sticky;top:0;z-index:100;background:rgba(6,11,23,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),#0080FF);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;color:var(--text)}
+.nav-title span{color:var(--accent)}
+.btn-back{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);text-decoration:none;font-size:.82rem;padding:7px 14px;border-radius:8px;transition:all .15s}
+.btn-back:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
+.page{flex:1;padding:48px 2rem;position:relative;z-index:1;max-width:780px;margin:0 auto;width:100%}
+.glow{position:absolute;top:5%;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(0,229,255,.07) 0%,transparent 70%);pointer-events:none}
+.page-head{margin-bottom:32px}
+.api-name-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.18);color:var(--accent);font-size:.78rem;font-weight:600;padding:5px 12px;border-radius:20px;margin-bottom:16px;text-transform:uppercase;letter-spacing:.06em}
+.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.9rem;letter-spacing:-.6px;margin-bottom:8px}
+.page-sub{color:var(--muted);font-size:.9rem}
+
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:28px}
+.meta-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.meta-label{font-size:.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.meta-value{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);word-break:break-all}
+.method-badge{display:inline-block;background:rgba(34,211,165,.1);border:1px solid rgba(34,211,165,.2);color:var(--green);padding:2px 10px;border-radius:5px;font-size:.78rem;font-weight:700}
+
+.gen-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px}
+.gen-card-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.gen-card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem}
+.gen-card-body{padding:24px}
+
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.lang-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;position:relative}
+.lang-btn input{position:absolute;opacity:0;pointer-events:none}
+.lang-btn:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.04)}
+.lang-btn.selected{background:rgba(0,229,255,.08);border-color:rgba(0,229,255,.3);color:var(--accent)}
+.lang-emoji{font-size:1.4rem;display:block;margin-bottom:4px}
+.lang-name{font-size:.8rem;font-weight:500}
+
+.code-preview{background:#0A0F1E;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+.code-preview pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#7DD3FC;line-height:1.7;overflow-x:auto}
+.code-comment{color:#4B5563}
+.code-kw{color:#C084FC}
+.code-str{color:#86EFAC}
+
+.btn-generate{display:inline-flex;align-items:center;gap:8px;background:var(--accent);border:none;border-radius:10px;padding:12px 24px;color:#060B17;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-generate:hover{background:#33EAFF;box-shadow:0 6px 20px rgba(0,229,255,.3);transform:translateY(-1px)}
+
+.footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 2rem;text-align:center;color:var(--muted);font-size:.78rem}
+.footer strong{color:var(--text)}
+</style>
 </head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <div class="nav-logo">⚡</div>
+    <span class="nav-title">Dev<span>API</span></span>
+  </a>
+  <a href="/" class="btn-back">← Back to Directory</a>
+</nav>
 
-<body class="bg-light">
+<main class="page">
+  <div class="glow"></div>
+  <div class="page-head">
+    <div class="api-name-tag">⚡ Code Generator</div>
+    <h1 class="page-title">Generate Code for {{ api.name }}</h1>
+    <p class="page-sub">Pick a language and get a ready-to-use integration snippet in seconds.</p>
+  </div>
 
-<div class="container py-5">
-
-    <h2 class="mb-4">
-        ⚡ Generate Code for {{ api.name }}
-    </h2>
-
-    <div class="card p-4 shadow">
-
-        <h5>API Endpoint</h5>
-        <p>{{ api.endpoint }}</p>
-
-        <h5>Method</h5>
-        <p>{{ api.method }}</p>
-
-        <hr>
-
-        
-
-        <form method="POST">
-            
-            <h5>Select Language</h5>
-
-            <select name="language" class="form-select w-50 mb-3" required>
-
-                <option value="">-- Select Language --</option>
-
-                <option value="Python">Python</option>
-                <option value="JavaScript">JavaScript</option>
-                <option value="Node.js">Node.js</option>
-                <option value="Java">Java</option>
-
-            </select>
-
-
-            <button type="submit" class="btn btn-success mb-3">
-        ⚡          Generate Code
-            </button>
-
-            </form>
-
-
-        <h5>Example Code</h5>
-
-        <pre class="bg-dark text-light p-3 rounded">
-
-# Python Example
-import requests
-
-url = "{{ api.endpoint }}"
-
-res = requests.get(url)
-
-print(res.json())
-
-        </pre>
-
-        <a href="/" class="btn btn-secondary mt-3">
-            ⬅ Back
-        </a>
-
+  <div class="meta-grid">
+    <div class="meta-card">
+      <div class="meta-label">Endpoint</div>
+      <div class="meta-value">{{ api.endpoint }}</div>
     </div>
+    <div class="meta-card">
+      <div class="meta-label">HTTP Method</div>
+      <div class="meta-value"><span class="method-badge">{{ api.method }}</span></div>
+    </div>
+  </div>
 
-</div>
+  <div class="gen-card">
+    <div class="gen-card-head">
+      <div class="gen-card-title">Select Language</div>
+    </div>
+    <div class="gen-card-body">
+      <form method="POST" id="genForm">
+        <div class="lang-grid">
+          {% for lang, emoji in [('Python','🐍'),('JavaScript','🟡'),('Node.js','🟢'),('Java','☕')] %}
+          <label class="lang-btn" id="lbl-{{ lang }}">
+            <input type="radio" name="language" value="{{ lang }}" required>
+            <span class="lang-emoji">{{ emoji }}</span>
+            <span class="lang-name">{{ lang }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="code-preview">
+          <pre id="codePreview"><span class="code-comment"># Select a language above to see a preview...</span></pre>
+        </div>
+        <button type="submit" class="btn-generate">⚡ Generate Full Code →</button>
+      </form>
+    </div>
+  </div>
+</main>
 
+<footer class="footer">© 2025 <strong>DevAPI Hub</strong> · Built for developers</footer>
+
+<script>
+const endpoint = {{ api.endpoint|tojson }};
+const previews = {
+  'Python': `<span class="code-kw">import</span> requests\n\nurl = <span class="code-str">"${endpoint}"</span>\nresponse = requests.get(url)\nprint(response.json())`,
+  'JavaScript': `<span class="code-kw">fetch</span>(<span class="code-str">"${endpoint}"</span>)\n  .then(res => res.json())\n  .then(data => console.log(data))\n  .catch(err => console.error(err));`,
+  'Node.js': `<span class="code-kw">const</span> axios = require(<span class="code-str">'axios'</span>);\n\naxios.get(<span class="code-str">"${endpoint}"</span>)\n  .then(res => console.log(res.data))\n  .catch(err => console.error(err));`,
+  'Java': `HttpClient client = HttpClient.newHttpClient();\nHttpRequest request = HttpRequest.newBuilder()\n  .uri(URI.create(<span class="code-str">"${endpoint}"</span>))\n  .build();\nHttpResponse&lt;String&gt; response = client.send(request, BodyHandlers.ofString());\nSystem.out.println(response.body());`
+};
+document.querySelectorAll('.lang-btn input').forEach(radio => {
+  radio.addEventListener('change', () => {
+    document.querySelectorAll('.lang-btn').forEach(l => l.classList.remove('selected'));
+    radio.closest('.lang-btn').classList.add('selected');
+    document.getElementById('codePreview').innerHTML = previews[radio.value] || '';
+  });
+});
+</script>
 </body>
 </html>
