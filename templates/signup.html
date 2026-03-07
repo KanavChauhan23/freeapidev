@@ -1,44 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Signup</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — DevAPI Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060B17;--surface:#0D1626;--surface2:#121E33;--border:rgba(255,255,255,0.08);--accent:#00E5FF;--green:#22D3A5;--text:#E2EAF4;--muted:#6B7E99}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.navbar{position:sticky;top:0;z-index:100;background:rgba(6,11,23,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),#0080FF);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;color:var(--text)}
+.nav-title span{color:var(--accent)}
+.page{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 1rem;position:relative;z-index:1}
+.glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(34,211,165,.06) 0%,transparent 70%);pointer-events:none}
+.card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:40px;position:relative}
+.card::before{content:'';position:absolute;top:0;left:40px;right:40px;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);border-radius:1px}
+.card-head{text-align:center;margin-bottom:32px}
+.card-icon{width:52px;height:52px;background:rgba(34,211,165,.1);border:1px solid rgba(34,211,165,.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px}
+.card-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;letter-spacing:-.5px;margin-bottom:6px}
+.card-sub{color:var(--muted);font-size:.875rem}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:.78rem;font-weight:500;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:.9rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s}
+.form-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(34,211,165,.1)}
+.form-input::placeholder{color:var(--muted)}
+.btn-primary{width:100%;background:var(--green);border:none;border-radius:10px;padding:13px;color:#060B17;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px;letter-spacing:.02em}
+.btn-primary:hover{background:#3DFFC0;box-shadow:0 6px 20px rgba(34,211,165,.3);transform:translateY(-1px)}
+.perks{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;padding:16px;background:rgba(34,211,165,.05);border:1px solid rgba(34,211,165,.12);border-radius:10px}
+.perk{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted)}
+.perk::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.divider{display:flex;align-items:center;gap:12px;margin:22px 0;color:var(--muted);font-size:.8rem}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.form-footer{text-align:center;color:var(--muted);font-size:.85rem}
+.form-footer a{color:var(--accent);text-decoration:none;font-weight:500}
+.form-footer a:hover{text-decoration:underline}
+.footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 2rem;text-align:center;color:var(--muted);font-size:.78rem}
+.footer strong{color:var(--text)}
+</style>
 </head>
-
-<body class="bg-light">
-
-<div class="container">
-
-<div class="card p-4 mt-5 mx-auto" style="max-width:400px">
-
-<h3 class="text-center">Create Account</h3>
-
-<form method="POST">
-
-<input name="username" class="form-control my-2"
- placeholder="Username" required>
-
-<input name="email" class="form-control my-2"
- placeholder="Email" required>
-
-<input type="password" name="password"
- class="form-control my-2"
- placeholder="Password" required>
-
-<button class="btn btn-success w-100 mt-3">
-Sign Up
-</button>
-
-</form>
-
-<p class="text-center mt-2">
-<a href="/login">Already have account?</a>
-</p>
-
-</div>
-</div>
-
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <div class="nav-logo">⚡</div>
+    <span class="nav-title">Dev<span>API</span></span>
+  </a>
+</nav>
+<main class="page">
+  <div class="glow"></div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">🚀</div>
+      <h1 class="card-title">Create your account</h1>
+      <p class="card-sub">Join thousands of developers exploring free APIs</p>
+    </div>
+    <div class="perks">
+      <div class="perk">Access 100+ curated free APIs</div>
+      <div class="perk">Filter by category and auth type</div>
+      <div class="perk">Save and bookmark your favourites</div>
+    </div>
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <input class="form-input" type="text" id="username" name="username" placeholder="devhero42" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="email">Email address</label>
+        <input class="form-input" type="email" id="email" name="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" name="password" placeholder="Create a strong password" required>
+      </div>
+      <button class="btn-primary" type="submit">Create Account →</button>
+    </form>
+    <div class="divider">already have an account?</div>
+    <p class="form-footer"><a href="/login">Sign in instead</a></p>
+  </div>
+</main>
+<footer class="footer">© 2025 <strong>DevAPI Hub</strong> · Built for developers</footer>
 </body>
 </html>
