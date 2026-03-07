@@ -1,82 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<title>Add API</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add API — DevAPI Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-
-body{
- background:#f6f9fe;
- font-family:Arial;
-}
-
-.card{
- max-width:500px;
- margin:auto;
- margin-top:80px;
- padding:25px;
- border-radius:15px;
- box-shadow:0 10px 25px rgba(0,0,0,.1);
-}
-
-button{
- background:#2563eb!important;
- border:none!important;
-}
-
+:root{--bg:#060B17;--surface:#0D1626;--surface2:#121E33;--border:rgba(255,255,255,0.08);--accent:#00E5FF;--accent2:#FF6B35;--text:#E2EAF4;--muted:#6B7E99}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.navbar{position:sticky;top:0;z-index:100;background:rgba(6,11,23,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),#0080FF);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;color:var(--text)}
+.nav-title span{color:var(--accent)}
+.btn-back{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);text-decoration:none;font-size:.82rem;padding:7px 14px;border-radius:8px;transition:all .15s}
+.btn-back:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
+.page{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:48px 1rem;position:relative;z-index:1}
+.glow{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(255,107,53,.05) 0%,transparent 70%);pointer-events:none}
+.card{width:100%;max-width:560px;background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;position:relative}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+.card-head{padding:32px 36px 24px;border-bottom:1px solid var(--border)}
+.card-icon{width:48px;height:48px;background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.card-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-.4px}
+.card-sub{color:var(--muted);font-size:.875rem;margin-top:4px}
+.card-body{padding:28px 36px 36px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:.77rem;font-weight:600;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.07em}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s}
+.form-textarea{font-family:'JetBrains Mono',monospace;font-size:.8rem;resize:vertical;min-height:100px}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.1)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--muted)}
+.form-select{cursor:pointer}
+.form-select option{background:var(--surface2)}
+.btn-submit{width:100%;background:linear-gradient(135deg,var(--accent2),#FF8C5A);border:none;border-radius:10px;padding:13px;color:white;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px;letter-spacing:.02em}
+.btn-submit:hover{opacity:.9;box-shadow:0 8px 24px rgba(255,107,53,.3);transform:translateY(-1px)}
+.footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:18px 2rem;text-align:center;color:var(--muted);font-size:.78rem}
+.footer strong{color:var(--text)}
 </style>
-
 </head>
-
 <body>
-
-<div class="card">
-
-<h3 class="text-center mb-4">➕ Add New API</h3>
-
-<form method="POST">
-
-<div class="mb-3">
-<input name="name" class="form-control" placeholder="API Name" required>
-</div>
-
-<div class="mb-3">
-<input name="tech" class="form-control" placeholder="Technology (AI, Web, ML...)" required>
-</div>
-
-<div class="mb-3">
-<input name="url" class="form-control" placeholder="Website URL" required>
-</div>
-
-<div class="mb-3">
-<input name="desc" class="form-control" placeholder="Description" required>
-</div>
-
-<div class="mb-3">
-<textarea name="code" rows="4" class="form-control"
- placeholder="Example Code" required></textarea>
-</div>
-
-<div class="mb-3">
-    <label>API Endpoint</label>
-    <input type="text" name="endpoint" class="form-control" required>
-</div>
-
-<!-- <a href="/import-github" class="btn btn-dark mt-2">
-    🐙 Import APIs from GitHub
-</a> -->
-
-
-<button class="btn btn-primary w-100">
-Add API
-</button>
-
-</form>
-
-</div>
-
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <div class="nav-logo">⚡</div>
+    <span class="nav-title">Dev<span>API</span></span>
+  </a>
+  <a href="/" class="btn-back">← Back to Directory</a>
+</nav>
+<main class="page">
+  <div class="glow"></div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">➕</div>
+      <h1 class="card-title">Add a New API</h1>
+      <p class="card-sub">Contribute to the directory and help other developers find great APIs</p>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="name">API Name</label>
+            <input class="form-input" type="text" id="name" name="name" placeholder="e.g. WeatherAPI" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tech">Category</label>
+            <select class="form-select" id="tech" name="tech" required>
+              <option value="" disabled selected>Select category</option>
+              <option>AI</option><option>Animals</option><option>Development</option>
+              <option>Entertainment</option><option>Environment</option><option>Finance</option>
+              <option>Fun</option><option>Government</option><option>Health</option>
+              <option>Maps</option><option>Music</option><option>News</option>
+              <option>Science</option><option>Social</option><option>Utilities</option>
+              <option>Weather</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="url">Website / Docs URL</label>
+          <input class="form-input" type="url" id="url" name="url" placeholder="https://api.example.com/docs" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="desc">Description</label>
+          <input class="form-input" type="text" id="desc" name="desc" placeholder="Brief description of what this API does" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="endpoint">Base Endpoint</label>
+          <input class="form-input" type="text" id="endpoint" name="endpoint" placeholder="https://api.example.com/v1/" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="code">Example Code Snippet</label>
+          <textarea class="form-textarea" id="code" name="code" placeholder="import requests&#10;res = requests.get('https://api.example.com/v1/data')&#10;print(res.json())" required></textarea>
+        </div>
+        <button class="btn-submit" type="submit">Submit API →</button>
+      </form>
+    </div>
+  </div>
+</main>
+<footer class="footer">© 2025 <strong>DevAPI Hub</strong> · Built for developers</footer>
 </body>
 </html>
