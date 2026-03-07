@@ -211,17 +211,30 @@ CODE_TEMPLATES = {
 #  ROUTES
 # ═══════════════════════════════════════════════════════════════════
 
-# ── / — Home page ─────────────────────────────────────────────────
+# ── / — Home page (LOGIN REQUIRED) ───────────────────────────────
 @app.route("/")
 def home():
-    apis         = get_all_apis()
-    categories   = sorted(set(a.get("Category", "") for a in apis if a.get("Category")))
+
+    # 🔒 Require login to view APIs
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    apis = get_all_apis()
+    categories = sorted(set(a.get("Category", "") for a in apis if a.get("Category")))
     selected_cat = request.args.get("cat", "")
+
     if selected_cat:
         apis = [a for a in apis if a.get("Category") == selected_cat]
+
     total = len(get_all_apis())
-    return render_template("index.html", apis=apis, categories=categories,
-                           selected_cat=selected_cat, total=total)
+
+    return render_template(
+        "index.html",
+        apis=apis,
+        categories=categories,
+        selected_cat=selected_cat,
+        total=total
+    )
 
 
 # ── /signup — Create account ──────────────────────────────────────
@@ -382,3 +395,4 @@ with app.app_context():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
