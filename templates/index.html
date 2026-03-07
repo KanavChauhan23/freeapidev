@@ -111,11 +111,25 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="nav-logo">⚡</div>
     <span class="nav-title">Dev<span>API</span></span>
   </a>
+
   <div class="nav-search">
     <span class="search-icon">⌕</span>
     <input type="text" id="searchInput" placeholder="Search by name or category…" autocomplete="off">
   </div>
+
   <div class="nav-pill">{{ total }} APIs</div>
+
+  <!-- AUTH BUTTONS -->
+  <div style="display:flex; gap:10px;">
+    {% if session.get('user_id') %}
+      <a href="/profile" style="color:white;text-decoration:none;">Profile</a>
+      <a href="/logout" style="color:#00E5FF;text-decoration:none;">Logout</a>
+    {% else %}
+      <a href="/login" style="color:white;text-decoration:none;">Login</a>
+      <a href="/signup" style="color:#00E5FF;text-decoration:none;">Sign Up</a>
+    {% endif %}
+  </div>
+
 </nav>
 
 <header class="hero">
@@ -235,3 +249,4 @@ input.addEventListener('input',()=>{
 </script>
 </body>
 </html>
+
